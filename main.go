@@ -10,9 +10,10 @@ import (
 	// "github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	// "minpro-backend/models"
-	"project/controller"
+
+	// "minpro-backend/model"
 	"project/config"
+	"project/controller"
 )
 
 var DB *sql.DB

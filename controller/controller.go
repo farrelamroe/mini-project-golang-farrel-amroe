@@ -1,23 +1,22 @@
 package controller
 
 import (
-	// "database/sql"
-	// "log"
 	"net/http"
 	"strconv"
+	"time"
+
+	"project/model"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	// "github.com/labstack/echo/v4/middleware"
-	"project/models"
 )
 
-var users []models.User
+var users []model.User
 
 // Register handles user registration
 func Register(c echo.Context) error {
-	user := new(models.User)
+	user := new(model.User)
 	if err := c.Bind(user); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid request")
 	}
@@ -36,7 +35,7 @@ func Login(c echo.Context) error {
 
 	// Check if user exists in the database
 	for _, u := range users {
-		if u.Email == email && u.Password == password && u.UserName == username{
+		if u.Email == email && u.Password == password && u.UserName == username {
 			return c.JSON(http.StatusOK, "Login successful")
 		}
 	}
@@ -45,33 +44,14 @@ func Login(c echo.Context) error {
 }
 
 // Get a book by ID
-// Fetch books from database
 func GetBook(c echo.Context) error {
-	// Implement your SQL query here
-	// rows, err := DB.Query("SELECT id, title, tags FROM books")
-	// if err != nil {
-	// 	log.Println("Error fetching books:", err)
-	// 	return c.JSON(http.StatusInternalServerError, "Internal server error")
-	// }
-	// defer rows.Close()
-
-	// var books []models.Book
-	// for rows.Next() {
-	// 	var book models.Book
-	// 	if err := rows.Scan(&book.ID, &book.Title, &book.Tags); err != nil {
-	// 		log.Println("Error scanning row:", err)
-	// 		continue
-	// 	}
-	// 	books = append(books, book)
-	// }
-
-	// if err := rows.Err(); err != nil {
-	// 	log.Println("Error iterating rows:", err)
-	// 	return c.JSON(http.StatusInternalServerError, "Internal server error")
-	// }
-	book := []models.Book{
-		{ID: 1, Title: "Clean Code", Tags: "programming, software"},
-		{ID: 2, Title: "Design Patterns", Tags: "programming, architecture"},
+	book := []model.Book{
+		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software", CreatedAt: time.Date(2022, 3, 21, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: int(uuid.New().ID()), Title: "Design Patterns", Tags: "programming, architecture", CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: int(uuid.New().ID()), Title: "Learning Python", Tags: "programming", CreatedAt: time.Date(2022, 10, 30, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: int(uuid.New().ID()), Title: "Learning Javascript", Tags: "programming", CreatedAt: time.Date(2023, 6, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: int(uuid.New().ID()), Title: "History of Java", Tags: "history, culture", CreatedAt: time.Date(2023, 12, 11, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: int(uuid.New().ID()), Title: "Learning Basic Web Programming", Tags: "programming, architecture", CreatedAt: time.Now(), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -81,7 +61,15 @@ func GetBook(c echo.Context) error {
 }
 
 func GetBookById(c echo.Context) error {
-	book := models.Book{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software"}
+	id, _ := strconv.Atoi(c.Param("ID"))
+	book := []model.Book{
+		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software", CreatedAt: time.Date(2022, 3, 21, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id, Title: "Design Patterns", Tags: "programming, architecture", CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id + 1, Title: "Learning Python", Tags: "programming", CreatedAt: time.Date(2022, 10, 30, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id + 2, Title: "Learning Javascript", Tags: "programming", CreatedAt: time.Date(2023, 6, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id + 3, Title: "History of Java", Tags: "history, culture", CreatedAt: time.Date(2023, 12, 11, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id + 4, Title: "Learning Basic Web Programming", Tags: "programming, architecture", CreatedAt: time.Now(), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"books": book,
@@ -91,39 +79,25 @@ func GetBookById(c echo.Context) error {
 
 // Create a new book
 func CreateBook(c echo.Context) error {
-	// Parse request body
-	// var book Book
-	// if err := c.Bind(&book); err != nil {
-	// 	return err
-	// }
-
-	// // Insert book into database
-	// result, err := DB.Exec("INSERT INTO books (title, tags) VALUES (?, ?)", book.Title, book.Tags)
-	// if err != nil {
-	// 	log.Println("Error creating book:", err)
-	// 	return c.JSON(http.StatusInternalServerError, "Internal server error")
-	// }
-
-	// // Get the auto-generated ID of the newly inserted book
-	// bookID, _ := result.LastInsertId()
-	// book.ID = int(bookID)
-	var book models.Book
+	var book model.Book
 	if err := c.Bind(&book); err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusCreated, book)
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"books": book,
+	})
 }
 
 // Update a book by ID
 func UpdateBook(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("ID"))
-	bookCatalog := models.Book{}
+	bookCatalog := model.Book{}
 	c.Bind(&bookCatalog)
 
-	book := []models.Book{
-		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software"},
-		{ID: id, Title: "Design Patterns", Tags: "programming, architecture"},
+	book := []model.Book{
+		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software", CreatedAt: time.Date(2022, 3, 21, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id, Title: "Design Patterns", Tags: "programming, architecture", CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
 	}
 
 	for i, books := range book {
@@ -134,13 +108,6 @@ func UpdateBook(c echo.Context) error {
 		}
 	}
 
-	// Update book in database
-	// _, err := DB.Exec("UPDATE books SET title = ?, tags = ? WHERE id = ?", book.Title, book.Tags, id)
-	// if err != nil {
-	// 	log.Println("Error updating book:", err)
-	// 	return c.JSON(http.StatusInternalServerError, "Internal server error")
-	// }
-
 	return c.JSON(http.StatusOK, book)
 }
 
@@ -148,19 +115,12 @@ func UpdateBook(c echo.Context) error {
 func DeleteBook(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("ID"))
 
-	// Delete book from database
-	// _, err := DB.Exec("DELETE FROM books WHERE id = ?", id)
-	// if err != nil {
-	// 	log.Println("Error deleting book:", err)
-	// 	return c.JSON(http.StatusInternalServerError, "Internal server error")
-	// }
-
-	book := []models.Book{
-		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software"},
-		{ID: id, Title: "Design Patterns", Tags: "programming, architecture"},
+	book := []model.Book{
+		{ID: int(uuid.New().ID()), Title: "Clean Code", Tags: "programming, software", CreatedAt: time.Date(2022, 3, 21, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
+		{ID: id, Title: "Design Patterns", Tags: "programming, architecture", CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, time.UTC), Category: model.Categories{CategoryID: int(uuid.New().ID()), Category: "Book"}},
 	}
 
-		indexToDelete := -1
+	indexToDelete := -1
 	for i, books := range book {
 		if books.ID == id {
 			indexToDelete = i
